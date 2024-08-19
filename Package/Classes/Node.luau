@@ -1,4 +1,4 @@
-local Handler = require("../Objects/Handler")
+local Handler = require("@Classes/Handler")
 local net = require("@lune/net")
 
 type Impl = {
@@ -12,8 +12,9 @@ type Impl = {
 type Proto = {
 	method: net.HttpMethod?,
 	handler: Handler.Handler?,
-	route: string,
+	route: string?,
 	children: { Node },
+	middleware: { Handler.Middleware }
 }
 
 local Node: Impl = {} :: Impl
@@ -56,6 +57,7 @@ function Node:findDescendant(route: string, method: net.HttpMethod?): Node?
 			return nil
 		end
 	end
+
 	return res
 end
 
@@ -78,7 +80,7 @@ function Node:add(route: string, handler: Handler.Handler, method: net.HttpMetho
 			return
 		end
 
-		local node = scope:findChild(v)
+		local node: any = scope:findChild(v) -- analyzer is sometimes really stupid... (or maybe i am)
 		if not node then
 			node = Node.new(v)
 			table.insert(scope.children, node)

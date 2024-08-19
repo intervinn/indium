@@ -1,5 +1,5 @@
 local Handler = require("Handler")
-local Node = require("../Internal/Node")
+local Node = require("@Classes/Node")
 local net = require("@lune/net")
 
 type Impl = {
@@ -14,10 +14,13 @@ type Impl = {
 	options: (self: Router, route: string, handler: Handler.Handler) -> (),
 	patch: (self: Router, route: string, handler: Handler.Handler) -> (),
 	put: (self: Router, route: string, handler: Handler.Handler) -> (),
+
+	use: (self: Router, mount: Handler.Middleware | Router) -> ()
 }
 
 type Proto = {
 	node: Node.Node,
+	middleware: {Handler.Middleware}
 }
 
 local Router: Impl = {} :: Impl
@@ -53,6 +56,16 @@ end
 
 function Router:put(route: string, handler: Handler.Handler)
 	self.node:add(route, handler, "PUT")
+end
+
+function Router:use(mount: Handler.Middleware | Router)
+	if type(mount) == "function" then
+		table.insert(self.middleware, mount)
+	end
+
+	if type(mount) == "table" then
+		
+	end
 end
 
 return Router

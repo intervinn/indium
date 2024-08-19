@@ -3,8 +3,7 @@
   "luau-lsp.require.directoryAliases": {
     "@lune/": "~/.lune/.typedefs/0.8.2/",
 
-    "@Objects": "Package/Classes/Objects",
-    "@Internal": "Package/Classes/Internal",
+    "@Classes": "Package/Classes",
     "@Enums": "Package/Enums"
   }
 }

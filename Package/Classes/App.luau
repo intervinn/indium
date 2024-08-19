@@ -1,6 +1,6 @@
-local Router = require("@Objects/Router")
-local Response = require("@Objects/Response")
-local Request = require("@Objects/Request")
+local Router = require("@Classes/Router")
+local Response = require("@Classes/Response")
+local Request = require("@Classes/Request")
 
 local net = require("@lune/net")
 
@@ -46,8 +46,14 @@ function App:listen(port: number, func: (() -> ())?)
 
 		local request = Request.new(req)
 		local response = Response.new()
+		local called = false
 
-		node.handler(request, response)
+		local handle = function()
+			node.handler(request, response)
+			called = true
+		end
+
+		
 
 		return response:respond()
 	end)

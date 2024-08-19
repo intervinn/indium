@@ -1,8 +1,8 @@
-local App = require("@Objects/App")
-local Router = require("@Objects/Router")
-local Request = require("@Objects/Request")
-local Response = require("@Objects/Response")
-local Handler = require("@Objects/Handler")
+local App = require("@Classes/App")
+local Router = require("@Classes/Router")
+local Request = require("@Classes/Request")
+local Response = require("@Classes/Response")
+local Handler = require("@Classes/Handler")
 
 local Status = require("@Enums/Status")
 
@@ -23,5 +23,7 @@ Indium.Router = Router
 Indium.Status = Status
 
 export type Handler = Handler.Handler
+export type Middleware = Handler.Middleware
+export type NextFunction = Handler.NextFunction
 
 return Indium

@@ -1,11 +1,10 @@
 {
-    "languageMode": "strict",
+    "languageMode": "strict", 
     "lint": {
         "*": false
     },
     "aliases": {
-        "Objects": "./Package/Classes/Objects",
-        "Internal": "./Package/Classes/Internal",
+        "Classes": "./Package/Classes",
         "Enums": "./Package/Enums"
     }
 }
