@@ -2,7 +2,12 @@ local Handler = require("Handler")
 local Node = require("../Internal/Node")
 local net = require("@lune/net")
 
-export type RouterMethodImpl = {
+type Impl = {
+    __index: Impl,
+    new: () -> Router,
+
+    route: (self: Router, route: string, handler: Handler.Handler, method: net.HttpMethod) -> (),
+
     post: (self: Router, route: string, handler: Handler.Handler) -> (),
     get: (self: Router, route: string, handler: Handler.Handler) -> (),
     head: (self: Router, route: string, handler: Handler.Handler) -> (),
@@ -10,13 +15,6 @@ export type RouterMethodImpl = {
     patch: (self: Router, route: string, handler: Handler.Handler) -> (),
     put: (self: Router, route: string, handler: Handler.Handler) -> (),
 }
-
-type Impl = {
-    __index: Impl,
-    new: () -> Router,
-
-    route: (self: Router, route: string, handler: Handler.Handler, method: net.HttpMethod) -> ()
-} & RouterMethodImpl
 
 type Proto = {
     node: Node.Node

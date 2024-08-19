@@ -1,5 +1,6 @@
-local Context = require("Context")
+local Request = require("Request")
+local Response = require("Response")
 
-export type Handler = (ctx: Context.Context) -> ()
+export type Handler = (req: Request.Request, res: Response.Response) -> ()
 
 return nil

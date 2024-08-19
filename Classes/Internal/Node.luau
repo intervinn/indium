@@ -66,6 +66,12 @@ function Node:add(route: string, handler: Handler.Handler, method: net.HttpMetho
         table.insert(pieces, str)
     end
 
+    if #pieces == 0 then
+        self.method = method
+        self.handler = handler
+        return
+    end
+
     for i,v in pieces do
         if i == #pieces then
             table.insert(scope.children, Node.new(v, handler, method))
