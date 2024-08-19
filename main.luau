@@ -1,6 +1,6 @@
-local App = require("Classes/App")
+local Indium = require("Package")
 
-local app = App.new()
+local app = Indium.App.new()
 
 app.router:get("/", function(req, res)
 	res:status(200):json({

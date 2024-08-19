@@ -1,0 +1,11 @@
+{
+    "languageMode": "strict",
+    "lint": {
+        "*": false
+    },
+    "aliases": {
+        "Objects": "./Package/Classes/Objects",
+        "Internal": "./Package/Classes/Internal",
+        "Enums": "./Package/Enums"
+    }
+}

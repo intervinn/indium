@@ -1,6 +1,6 @@
-local Router = require("Objects/Router")
-local Response = require("Objects/Response")
-local Request = require("Objects/Request")
+local Router = require("@Objects/Router")
+local Response = require("@Objects/Response")
+local Request = require("@Objects/Request")
 
 local net = require("@lune/net")
 
@@ -28,9 +28,13 @@ function App.new()
 end
 
 function App:listen(port: number, func: (() -> ())?)
+	if func then
+		func()
+	end
+	
 	self.handle = net.serve(port, function(req: net.ServeRequest)
 		local node = self.router.node:findDescendant(req.path, req.method)
-		if not node.handler then
+		if not node or not node.handler then
 			return {
 				body = "route not found",
 				status = 404,
