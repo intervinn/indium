@@ -3,10 +3,10 @@ local net = require("@lune/net")
 
 type Impl = {
 	__index: Impl,
-	new: (route: string?, handler: Handler.Handler?, method: net.HttpMethod?) -> Node,
+	new: (route: string?, handler: Handler.Handler?, method: net.HttpMethod?, middleware: {Handler.Middleware}?) -> Node,
 	findDescendant: (self: Node, route: string, method: net.HttpMethod?) -> Node?,
 	findChild: (self: Node, route: string, method: net.HttpMethod?) -> Node?,
-	add: (self: Node, route: string, handler: Handler.Handler, method: net.HttpMethod) -> (),
+	add: (self: Node, route: string, handler: Handler.Handler, method: net.HttpMethod, middleware: {Handler.Middleware}) -> (),
 }
 
 type Proto = {
@@ -22,12 +22,13 @@ Node.__index = Node
 
 export type Node = typeof(setmetatable({} :: Proto, {} :: Impl))
 
-function Node.new(route: string?, handler: Handler.Handler?, method: net.HttpMethod?)
+function Node.new(route: string?, handler: Handler.Handler?, method: net.HttpMethod?, middleware: {Handler.Middleware}?)
 	local self = setmetatable({} :: Proto, Node)
 	self.children = {}
 	self.handler = handler
 	self.method = method
 	self.route = route
+	self.middleware = middleware or {}
 
 	return self
 end
@@ -61,7 +62,7 @@ function Node:findDescendant(route: string, method: net.HttpMethod?): Node?
 	return res
 end
 
-function Node:add(route: string, handler: Handler.Handler, method: net.HttpMethod)
+function Node:add(route: string, handler: Handler.Handler, method: net.HttpMethod, middleware: {Handler.Middleware})
 	local scope: Node = self
 	local pieces = {} :: { string }
 	for str in route:gmatch("([^/]+)") do
@@ -71,12 +72,13 @@ function Node:add(route: string, handler: Handler.Handler, method: net.HttpMetho
 	if #pieces == 0 then
 		self.method = method
 		self.handler = handler
+		self.middleware = middleware
 		return
 	end
 
 	for i, v in pieces do
 		if i == #pieces then
-			table.insert(scope.children, Node.new(v, handler, method))
+			table.insert(scope.children, Node.new(v, handler, method, middleware))
 			return
 		end
 

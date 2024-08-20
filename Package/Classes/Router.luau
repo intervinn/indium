@@ -32,31 +32,32 @@ export type Router = typeof(setmetatable({} :: Proto, {} :: Impl))
 function Router.new()
 	local self = setmetatable({} :: Proto, Router)
 	self.node = Node.new()
+	self.middleware = {}
 	return self
 end
 
 function Router:route(route: string, handler: Handler.Handler, method: net.HttpMethod)
-	self.node:add(route, handler, method)
+	self.node:add(route, handler, method, self.middleware)
 end
 
 function Router:get(route: string, handler: Handler.Handler)
-	self.node:add(route, handler, "GET")
+	self:route(route, handler, "GET")
 end
 
 function Router:head(route: string, handler: Handler.Handler)
-	self.node:add(route, handler, "HEAD")
+	self:route(route, handler, "HEAD")
 end
 
 function Router:options(route: string, handler: Handler.Handler)
-	self.node:add(route, handler, "OPTIONS")
+	self:route(route, handler, "OPTIONS")
 end
 
 function Router:patch(route: string, handler: Handler.Handler)
-	self.node:add(route, handler, "PATCH")
+	self:route(route, handler, "PATCH")
 end
 
 function Router:put(route: string, handler: Handler.Handler)
-	self.node:add(route, handler, "PUT")
+	self:route(route, handler, "PUT")
 end
 
 function Router:use(func: Handler.Middleware)

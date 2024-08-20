@@ -3,6 +3,7 @@ local Response = require("@Classes/Response")
 local Request = require("@Classes/Request")
 
 local net = require("@lune/net")
+local task = require("@lune/task")
 
 type Impl = {
 	__index: Impl,
@@ -28,9 +29,11 @@ function App.new()
 end
 
 function App:listen(port: number, func: (() -> ())?)
-	if func then
-		func()
-	end
+	task.defer(function()
+		if func then
+			func()
+		end
+	end)
 	
 	self.handle = net.serve(port, function(req: net.ServeRequest)
 		local node = self.router.node:findDescendant(req.path, req.method)
@@ -46,14 +49,22 @@ function App:listen(port: number, func: (() -> ())?)
 
 		local request = Request.new(req)
 		local response = Response.new()
-		local called = false
 
-		local handle = function()
-			node.handler(request, response)
-			called = true
+		local stack = table.clone(node.middleware)
+
+		local index = 1
+		local function nextFunction()
+			if index == #stack then return end
+			index += 1
+			stack[index](request, response, nextFunction)
 		end
 
-		
+		local function handle(req,res,next)
+			node.handler(req, res)
+			next()
+		end
+		table.insert(stack, handle)
+		stack[index](request, response, nextFunction)
 
 		return response:respond()
 	end)
