@@ -15,7 +15,8 @@ type Impl = {
 	patch: (self: Router, route: string, handler: Handler.Handler) -> (),
 	put: (self: Router, route: string, handler: Handler.Handler) -> (),
 
-	use: (self: Router, mount: Handler.Middleware | Router) -> ()
+	use: (self: Router, func: Handler.Middleware) -> (),
+	mount: (self: Router, router: Router, prefix: string) -> ()
 }
 
 type Proto = {
@@ -58,14 +59,13 @@ function Router:put(route: string, handler: Handler.Handler)
 	self.node:add(route, handler, "PUT")
 end
 
-function Router:use(mount: Handler.Middleware | Router)
-	if type(mount) == "function" then
-		table.insert(self.middleware, mount)
-	end
+function Router:use(func: Handler.Middleware)
+	table.insert(self.middleware, func)
+end
 
-	if type(mount) == "table" then
-		
-	end
+function Router:mount(other: Router, prefix: string)
+	other.node.route = prefix
+	table.insert(self.node.children, other.node)
 end
 
 return Router
