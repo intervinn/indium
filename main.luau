@@ -1,4 +1,4 @@
-local Indium = require("Package")
+local Indium = require(".")
 
 local app = Indium.App.new()
 

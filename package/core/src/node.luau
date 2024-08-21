@@ -1,4 +1,4 @@
-local Handler = require("@Classes/Handler")
+local handler = require("@core/handler")
 local net = require("@lune/net")
 
 type Impl = {
@@ -6,15 +6,15 @@ type Impl = {
 	new: (params: Proto) -> Node,
 	findDescendant: (self: Node, route: string, method: net.HttpMethod?) -> (Node?, {[string]: string}),
 	findChild: (self: Node, route: string, method: net.HttpMethod?) -> Node?,
-	add: (self: Node, route: string, handler: Handler.Handler, method: net.HttpMethod, middleware: {Handler.Middleware}) -> (),
+	add: (self: Node, route: string, handler: handler.Handler, method: net.HttpMethod, middleware: {handler.Middleware}) -> (),
 }
 
 type Proto = {
 	method: net.HttpMethod?,
-	handler: Handler.Handler?,
+	handler: handler.Handler?,
 	route: string?,
 	children: { Node },
-	middleware: { Handler.Middleware },
+	middleware: { handler.Middleware },
 	dynamic: boolean
 }
 
@@ -84,7 +84,7 @@ function Node:findDescendant(route: string, method: net.HttpMethod?): (Node?, {[
 	return res, params
 end
 
-function Node:add(route: string, handler: Handler.Handler, method: net.HttpMethod, middleware: {Handler.Middleware})
+function Node:add(route: string, handler: handler.Handler, method: net.HttpMethod, middleware: {handler.Middleware})
 	local scope: Node = self
 	local pieces = {} :: { string }
 	for str in route:gmatch("([^/]+)") do

@@ -1,6 +1,6 @@
-local Router = require("@Classes/Router")
-local Response = require("@Classes/Response")
-local Request = require("@Classes/Request")
+local router = require("@core/router")
+local response = require("@core/response")
+local request = require("@core/request")
 
 local net = require("@lune/net")
 local task = require("@lune/task")
@@ -13,7 +13,7 @@ type Impl = {
 }
 
 type Proto = {
-	router: Router.Router,
+	router: router.Router,
 	handle: net.ServeHandle,
 }
 
@@ -23,7 +23,7 @@ export type App = typeof(setmetatable({} :: Proto, {} :: Impl))
 
 function App.new()
 	local self = setmetatable({} :: Proto, App)
-	self.router = Router.new()
+	self.router = router.new()
 
 	return self
 end
@@ -47,7 +47,7 @@ function App:listen(port: number, func: (() -> ())?)
 			} :: net.ServeResponse
 		end
 
-		local request = Request.new({
+		local request = request.new({
 			body = req.body,
 			method = req.method,
 			path = req.path,
@@ -56,7 +56,7 @@ function App:listen(port: number, func: (() -> ())?)
 			params = params,
 		})
 
-		local response = Response.new()
+		local response = response.new()
 
 		local stack = table.clone(node.middleware)
 

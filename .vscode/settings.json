@@ -2,7 +2,8 @@
   "luau-lsp.require.mode": "relativeToFile",
   "luau-lsp.require.directoryAliases": {
     "@lune/": "~/.lune/.typedefs/0.8.7/",
-    "@Classes": "Package/Classes",
-    "@Enums": "Package/Enums"
+    "@core": "package/core/src",
+    "@enum": "package/enum/src",
+    "@template": "package/template/src"
   }
 }

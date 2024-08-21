@@ -4,7 +4,8 @@
         "*": false
     },
     "aliases": {
-        "Classes": "./Package/Classes",
-        "Enums": "./Package/Enums"
+        "core": "./package/core/src",
+        "enum": "./package/enum/src",
+        "template": "./package/template/src"
     }
 }
