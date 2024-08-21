@@ -3,8 +3,8 @@ local net = require("@lune/net")
 
 type Impl = {
 	__index: Impl,
-	new: (route: string?, handler: Handler.Handler?, method: net.HttpMethod?, middleware: {Handler.Middleware}?) -> Node,
-	findDescendant: (self: Node, route: string, method: net.HttpMethod?) -> Node?,
+	new: (params: Proto) -> Node,
+	findDescendant: (self: Node, route: string, method: net.HttpMethod?) -> (Node?, {[string]: string}),
 	findChild: (self: Node, route: string, method: net.HttpMethod?) -> Node?,
 	add: (self: Node, route: string, handler: Handler.Handler, method: net.HttpMethod, middleware: {Handler.Middleware}) -> (),
 }
@@ -14,7 +14,8 @@ type Proto = {
 	handler: Handler.Handler?,
 	route: string?,
 	children: { Node },
-	middleware: { Handler.Middleware }
+	middleware: { Handler.Middleware },
+	dynamic: boolean
 }
 
 local Node: Impl = {} :: Impl
@@ -22,44 +23,65 @@ Node.__index = Node
 
 export type Node = typeof(setmetatable({} :: Proto, {} :: Impl))
 
-function Node.new(route: string?, handler: Handler.Handler?, method: net.HttpMethod?, middleware: {Handler.Middleware}?)
-	local self = setmetatable({} :: Proto, Node)
-	self.children = {}
-	self.handler = handler
-	self.method = method
-	self.route = route
-	self.middleware = middleware or {}
+function Node.new(params: Proto)
+	local self = setmetatable(params :: Proto, Node)
 
 	return self
 end
 
 function Node:findChild(route: string, method: net.HttpMethod?): Node?
 	for _, v in self.children do
+		if method and v.method and method ~= v.method then
+			continue
+		end
+
 		if v.route == route then
+			return v
+		end
+	end
+
+	--[[ 
+		if no static routes available..
+		search for first available dynamic route
+	]]
+
+	for _,v in self.children do
+		if not v.route then
+			continue
+		end
+
+		if v.dynamic then
 			if method and v.method and method ~= v.method then
 				continue
 			end
 			return v
 		end
 	end
+
 	return nil
 end
 
-function Node:findDescendant(route: string, method: net.HttpMethod?): Node?
+function Node:findDescendant(route: string, method: net.HttpMethod?): (Node?, {[string]: string})
 	local res: Node = self :: Node
 	local tmp: Node?
+	local params = {}
 
 	for str in route:gmatch("([^/]+)") do
 		tmp = res:findChild(str, method)
+
 		if tmp then
 			res = tmp
 			tmp = nil
 		else
-			return nil
+			return nil, {}
+		end
+
+		if res.dynamic and res.route then
+			params[res.route:sub(2)] = str
 		end
 	end
 
-	return res
+	return res, params
 end
 
 function Node:add(route: string, handler: Handler.Handler, method: net.HttpMethod, middleware: {Handler.Middleware})
@@ -78,13 +100,24 @@ function Node:add(route: string, handler: Handler.Handler, method: net.HttpMetho
 
 	for i, v in pieces do
 		if i == #pieces then
-			table.insert(scope.children, Node.new(v, handler, method, middleware))
+			table.insert(scope.children, Node.new({
+				route = v,
+				handler = handler,
+				middleware = middleware,
+				children = {},
+				dynamic = (v:sub(1,1) == ":")
+			}))
 			return
 		end
 
 		local node: any = scope:findChild(v) -- analyzer is sometimes really stupid... (or maybe i am)
 		if not node then
-			node = Node.new(v)
+			node = Node.new({
+				route = v,
+				dynamic = (v:sub(1,1) == ":"),
+				children = {},
+				middleware = middleware
+			})
 			table.insert(scope.children, node)
 		end
 		scope = node

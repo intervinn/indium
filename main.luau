@@ -8,6 +8,14 @@ app.router:use(function(req, res, next)
     next()
 end)
 
+-- dynamic routing
+app.router:get("/users/:user", function(req, res)  
+    print(req.params)
+    res:status(200):json({
+        message = `hello, {req.params["user"]}`
+    })
+end)
+
 -- routing
 app.router:get("/", function(req, res)  
     res:status(200):json({

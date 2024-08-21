@@ -31,7 +31,11 @@ export type Router = typeof(setmetatable({} :: Proto, {} :: Impl))
 
 function Router.new()
 	local self = setmetatable({} :: Proto, Router)
-	self.node = Node.new()
+	self.node = Node.new({
+		children = {},
+		dynamic = false,
+		middleware = {}
+	})
 	self.middleware = {}
 	return self
 end
