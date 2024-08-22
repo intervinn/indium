@@ -4,6 +4,7 @@
     "@lune/": "~/.lune/.typedefs/0.8.7/",
     "@core": "package/core/src",
     "@enum": "package/enum/src",
-    "@template": "package/template/src"
+    "@middleware": "package/middleware/src",
+    "@util": "package/util/src"
   }
 }

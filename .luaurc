@@ -6,6 +6,7 @@
     "aliases": {
         "core": "./package/core/src",
         "enum": "./package/enum/src",
-        "template": "./package/template/src"
+        "middleware": "./package/middleware/src",
+        "util": "./package/util/src"
     }
 }

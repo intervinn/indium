@@ -7,7 +7,9 @@ type Impl = {
 
 	status: (self: Response, code: number) -> Response,
 	json: (self: Response, value: any) -> Response,
+	text: (self: Response, value: string) -> Response,
 	respond: (self: Response) -> net.ServeResponse,
+	set: (self: Response, key: string, value: string) -> (),
 }
 
 type Proto = {
@@ -27,13 +29,24 @@ function Response.new()
 	return self
 end
 
+function Response:set(key: string, value: string)
+	self.headers[key] = value
+end
+
 function Response:status(code: number)
 	self.code = code
 	return self
 end
 
 function Response:json(value: any)
+	self.headers["Content-Type"] = "application/json"
 	self.body = serde.encode("json", value, true)
+	return self
+end
+
+function Response:text(value: string)
+	self.headers["Content-Type"] = "text/plain"
+	self.body = value
 	return self
 end
 

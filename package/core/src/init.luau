@@ -4,6 +4,10 @@ local request = require("@core/request")
 local response = require("@core/response")
 local handler = require("@core/handler")
 
+local status = require("@enum/status")
+
+local middleware = require("@middleware/")
+
 local Indium = {}
 
 export type App = app.App
@@ -19,5 +23,8 @@ Indium.Router = router
 Indium.Request = request
 Indium.Response = response
 Indium.Handler = handler
+
+Indium.Status = status
+Indium.Middleware = middleware
 
 return Indium
