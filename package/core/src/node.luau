@@ -1,16 +1,17 @@
+--!native
 local handler = require("@core/handler")
-local net = require("@lune/net")
+local std = require("@util/std")
 
 type Impl = {
 	__index: Impl,
 	new: (params: Proto) -> Node,
-	findDescendant: (self: Node, route: string, method: net.HttpMethod?) -> (Node?, {[string]: string}),
-	findChild: (self: Node, route: string, method: net.HttpMethod?) -> Node?,
-	add: (self: Node, route: string, handler: handler.Handler, method: net.HttpMethod, middleware: {handler.Middleware}) -> (),
+	findDescendant: (self: Node, route: string, method: std.HttpMethod?) -> (Node?, {[string]: string}),
+	findChild: (self: Node, route: string, method: std.HttpMethod?) -> Node?,
+	add: (self: Node, route: string, handler: handler.Handler, method: std.HttpMethod, middleware: {handler.Middleware}) -> (),
 }
 
 type Proto = {
-	method: net.HttpMethod?,
+	method: std.HttpMethod?,
 	handler: handler.Handler?,
 	route: string?,
 	children: { Node },
@@ -29,7 +30,7 @@ function Node.new(params: Proto)
 	return self
 end
 
-function Node:findChild(route: string, method: net.HttpMethod?): Node?
+function Node:findChild(route: string, method: std.HttpMethod?): Node?
 	for _, v in self.children do
 		if method and v.method and method ~= v.method then
 			continue
@@ -61,7 +62,7 @@ function Node:findChild(route: string, method: net.HttpMethod?): Node?
 	return nil
 end
 
-function Node:findDescendant(route: string, method: net.HttpMethod?): (Node?, {[string]: string})
+function Node:findDescendant(route: string, method: std.HttpMethod?): (Node?, {[string]: string})
 	local res: Node = self :: Node
 	local tmp: Node?
 	local params = {}
@@ -84,7 +85,7 @@ function Node:findDescendant(route: string, method: net.HttpMethod?): (Node?, {[
 	return res, params
 end
 
-function Node:add(route: string, handler: handler.Handler, method: net.HttpMethod, middleware: {handler.Middleware})
+function Node:add(route: string, handler: handler.Handler, method: std.HttpMethod, middleware: {handler.Middleware})
 	local scope: Node = self
 	local pieces = {} :: { string }
 	for str in route:gmatch("([^/]+)") do
@@ -110,7 +111,7 @@ function Node:add(route: string, handler: handler.Handler, method: net.HttpMetho
 			return
 		end
 
-		local node: any = scope:findChild(v) -- analyzer is sometimes really stupid... (or maybe i am)
+		local node = scope:findChild(v) :: any
 		if not node then
 			node = Node.new({
 				route = v,

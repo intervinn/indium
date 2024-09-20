@@ -1,4 +1,4 @@
-local net = require("@lune/net")
+local std = require("@util/std")
 local serde = require("@lune/serde")
 
 type Impl = {
@@ -8,7 +8,7 @@ type Impl = {
 	status: (self: Response, code: number) -> Response,
 	json: (self: Response, value: any) -> Response,
 	text: (self: Response, value: string) -> Response,
-	respond: (self: Response) -> net.ServeResponse,
+	respond: (self: Response) -> std.ServeResponse,
 	set: (self: Response, key: string, value: string) -> (),
 }
 
@@ -25,6 +25,9 @@ export type Response = typeof(setmetatable({} :: Proto, {} :: Impl))
 
 function Response.new()
 	local self = setmetatable({} :: Proto, Response)
+	self.headers = {}
+	self.code = -1
+	self.body = nil :: any
 
 	return self
 end
@@ -55,7 +58,7 @@ function Response:respond()
 		body = self.body,
 		headers = self.headers,
 		status = self.code,
-	} :: net.ServeResponse
+	} :: std.ServeResponse
 end
 
 return Response

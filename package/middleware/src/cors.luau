@@ -1,6 +1,3 @@
--- almost rewritten line by line from hono's middleware
--- consider adding function origins in the future
-
 local handler = require("@core/handler")
 local iter = require("@util/iter")
 
@@ -10,7 +7,7 @@ type Impl = {
 }
 
 export type CORSOptions = {
-    origin: string | {string},
+    origin: string | {string} | (...any) -> any,
     allowMethods: {string}?,
     allowHeaders: {string}?,
     maxAge: number?,
@@ -34,11 +31,13 @@ function CORS.new(opts: CORSOptions): handler.Middleware
         defaults[k] = v
     end
 
-    local function findAllowOrigin(optsOrigin: any): any
+    local findAllowOrigin = (function(optsOrigin: any): any
         if typeof(optsOrigin) == "string" then
             return function()
                 return optsOrigin
             end
+        elseif typeof(optsOrigin) == "function" then
+            return optsOrigin
         else
             return function(origin)
                 if table.find(optsOrigin, origin) then
@@ -48,7 +47,7 @@ function CORS.new(opts: CORSOptions): handler.Middleware
                 end
             end
         end
-    end
+    end)(opts.origin)
 
     return function(req,res,next)
         local allowOrigin = findAllowOrigin(req:get("origin") or "")

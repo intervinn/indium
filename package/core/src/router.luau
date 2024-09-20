@@ -1,12 +1,13 @@
+--!native
 local handler = require("@core/handler")
 local Node = require("@core/node")
-local net = require("@lune/net")
+local std = require("@util/std")
 
 type Impl = {
 	__index: Impl,
 	new: () -> Router,
 
-	route: (self: Router, route: string, handler: handler.Handler, method: net.HttpMethod) -> (),
+	route: (self: Router, route: string, handler: handler.Handler, method: std.HttpMethod) -> (),
 
 	post: (self: Router, route: string, handler: handler.Handler) -> (),
 	get: (self: Router, route: string, handler: handler.Handler) -> (),
@@ -40,7 +41,7 @@ function Router.new()
 	return self
 end
 
-function Router:route(route: string, handler: handler.Handler, method: net.HttpMethod)
+function Router:route(route: string, handler: handler.Handler, method: std.HttpMethod)
 	self.node:add(route, handler, method, self.middleware)
 end
 

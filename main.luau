@@ -2,10 +2,15 @@ local Indium = require(".")
 
 local app = Indium.App.new()
 
--- middleware
+
 app.router:use(Indium.Middleware.CORS.new({
     origin = "*"
 }))
+--[[    
+
+app.router:use(Indium.Middleware.Static.new("./examples"))
+]]
+
 -- dynamic routing
 app.router:get("/users/:user", function(req, res)  
     print(req.params)

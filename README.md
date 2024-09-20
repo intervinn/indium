@@ -30,9 +30,7 @@ end)
 ```
 
 # State of Indium
-Mostly this is a practice project, and the base code was written during a random rush of motivation. In order to become a solid project it is yet to be fully documented, and some implementations are to be reconsidered.
-
-Also, I hope to begin working on templating and providing batteries-included middleware such as CORS.
+I hope I can make something big out of it, that's about it.
 
 Many inspiration on code structuring was taken from [DiscordLuau](https://github.com/DiscordLuau/discord-luau).
 

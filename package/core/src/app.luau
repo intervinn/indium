@@ -1,9 +1,12 @@
+--!native
 local router = require("@core/router")
 local response = require("@core/response")
 local request = require("@core/request")
+local handler = require("@core/handler")
 
-local net = require("@lune/net")
-local task = require("@lune/task")
+local std = require("@util/std")
+
+local status = require("@enum/status")
 
 type Impl = {
 	__index: Impl,
@@ -14,37 +17,34 @@ type Impl = {
 
 type Proto = {
 	router: router.Router,
-	handle: net.ServeHandle,
+	handle: std.ServeHandle,
 }
 
 local App: Impl = {} :: Impl
 App.__index = App
+
 export type App = typeof(setmetatable({} :: Proto, {} :: Impl))
 
-function App.new()
+function App.new(): App
 	local self = setmetatable({} :: Proto, App)
 	self.router = router.new()
-
 	return self
 end
 
 function App:listen(port: number, func: (() -> ())?)
-	task.defer(function()
-		if func then
-			func()
+	local function onRequest(req: std.ServeRequest)
+		local handle: handler.Handler = function(req, res)
+			res:text("route not found")
+			res:status(status.NOT_FOUND)
 		end
-	end)
-	
-	self.handle = net.serve(port, function(req: net.ServeRequest)
+		local middleware = {}
+
 		local node, params = self.router.node:findDescendant(req.path, req.method)
-		if not node or not node.handler then
-			return {
-				body = "route not found",
-				status = 404,
-				headers = {
-					["Content-Type"] = "text/plain",
-				},
-			} :: net.ServeResponse
+		if node and node.handler then
+			handle = node.handler
+		end
+		if node and node.middleware then
+			middleware = node.middleware
 		end
 
 		local request = request.new({
@@ -53,29 +53,33 @@ function App:listen(port: number, func: (() -> ())?)
 			path = req.path,
 			query = req.query,
 			headers = req.headers,
-			params = params,
+			params = params
 		})
-
 		local response = response.new()
 
-		local stack = table.clone(node.middleware)
-
-		local index = 1
-		local function nextFunction()
-			if index == #stack then return end
-			index += 1
-			stack[index](request, response, nextFunction)
-		end
-
-		local function handle(req,res,next)
-			node.handler(req, res)
-			next()
-		end
+		local stack = table.clone(middleware) :: {any}
 		table.insert(stack, handle)
-		stack[index](request, response, nextFunction)
+		local current = 1
 
+		local function nextFunction()
+			if current == #stack then return end
+			current += 1
+			stack[current](request, response, nextFunction)
+		end
+
+		stack[current](request, response, nextFunction)
 		return response:respond()
+	end
+
+	-- some things we might wanna do after the server starts up
+	std.task.defer(function()
+		if func then
+			func()
+		end
 	end)
+	
+	-- now we serve
+	self.handle = std.net.serve(port, onRequest)
 end
 
 return App

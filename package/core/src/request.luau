@@ -1,4 +1,4 @@
-local net = require("@lune/net")
+local std = require("@util/std")
 
 type Impl = {
 	__index: Impl,
@@ -10,7 +10,7 @@ type Impl = {
 type Proto = {
 	params: {[string]: string},
 	headers: {[string]: string},
-	method: net.HttpMethod,
+	method: std.HttpMethod,
 	path: string,
 	query: {[string]: string?},
 	body: string
