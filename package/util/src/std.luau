@@ -5,12 +5,14 @@ local net = require("@lune/net")
 local task = require("@lune/task")
 local fs = require("@lune/fs")
 local process = require("@lune/process")
+local stdio = require("@lune/stdio")
 
 local Std = table.freeze({
     net = net,
     task = task,
     fs = fs,
-    process = process
+    process = process,
+    stdio = stdio
 })
 
 export type FetchParams = net.FetchParams
@@ -36,5 +38,8 @@ export type SpawnOptions = process.SpawnOptions
 export type SpawnOptionsStdio = process.SpawnOptionsStdio
 export type SpawnOptionsStdioKind = process.SpawnOptionsStdioKind
 export type SpawnResult = process.SpawnResult
+
+export type Color = stdio.Color
+export type Style = stdio.Style
 
 return Std

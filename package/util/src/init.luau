@@ -2,7 +2,7 @@ local iter = require("@util/iter")
 local std = require("@util/std")
 
 local util = {}
-util.iter = iter
-util.std = std
+util.Iter = iter
+util.Std = std
 
 return util
