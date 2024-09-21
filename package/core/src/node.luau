@@ -5,9 +5,15 @@ local std = require("@util/std")
 type Impl = {
 	__index: Impl,
 	new: (params: Proto) -> Node,
-	findDescendant: (self: Node, route: string, method: std.HttpMethod?) -> (Node?, {[string]: string}),
+	findDescendant: (self: Node, route: string, method: std.HttpMethod?) -> (Node?, { [string]: string }),
 	findChild: (self: Node, route: string, method: std.HttpMethod?) -> Node?,
-	add: (self: Node, route: string, handler: handler.Handler, method: std.HttpMethod, middleware: {handler.Middleware}) -> (),
+	add: (
+		self: Node,
+		route: string,
+		handler: handler.Handler,
+		method: std.HttpMethod,
+		middleware: { handler.Middleware }
+	) -> (),
 }
 
 type Proto = {
@@ -16,7 +22,7 @@ type Proto = {
 	route: string?,
 	children: { Node },
 	middleware: { handler.Middleware },
-	dynamic: boolean
+	dynamic: boolean,
 }
 
 local Node: Impl = {} :: Impl
@@ -46,7 +52,7 @@ function Node:findChild(route: string, method: std.HttpMethod?): Node?
 		search for first available dynamic route
 	]]
 
-	for _,v in self.children do
+	for _, v in self.children do
 		if not v.route then
 			continue
 		end
@@ -62,7 +68,7 @@ function Node:findChild(route: string, method: std.HttpMethod?): Node?
 	return nil
 end
 
-function Node:findDescendant(route: string, method: std.HttpMethod?): (Node?, {[string]: string})
+function Node:findDescendant(route: string, method: std.HttpMethod?): (Node?, { [string]: string })
 	local res: Node = self :: Node
 	local tmp: Node?
 	local params = {}
@@ -85,7 +91,7 @@ function Node:findDescendant(route: string, method: std.HttpMethod?): (Node?, {[
 	return res, params
 end
 
-function Node:add(route: string, handler: handler.Handler, method: std.HttpMethod, middleware: {handler.Middleware})
+function Node:add(route: string, handler: handler.Handler, method: std.HttpMethod, middleware: { handler.Middleware })
 	local scope: Node = self
 	local pieces = {} :: { string }
 	for str in route:gmatch("([^/]+)") do
@@ -101,13 +107,16 @@ function Node:add(route: string, handler: handler.Handler, method: std.HttpMetho
 
 	for i, v in pieces do
 		if i == #pieces then
-			table.insert(scope.children, Node.new({
-				route = v,
-				handler = handler,
-				middleware = middleware,
-				children = {},
-				dynamic = (v:sub(1,1) == ":")
-			}))
+			table.insert(
+				scope.children,
+				Node.new({
+					route = v,
+					handler = handler,
+					middleware = middleware,
+					children = {},
+					dynamic = (v:sub(1, 1) == ":"),
+				})
+			)
 			return
 		end
 
@@ -115,9 +124,9 @@ function Node:add(route: string, handler: handler.Handler, method: std.HttpMetho
 		if not node then
 			node = Node.new({
 				route = v,
-				dynamic = (v:sub(1,1) == ":"),
+				dynamic = (v:sub(1, 1) == ":"),
 				children = {},
-				middleware = middleware
+				middleware = middleware,
 			})
 			table.insert(scope.children, node)
 		end

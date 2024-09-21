@@ -17,12 +17,12 @@ type Impl = {
 	put: (self: Router, route: string, handler: handler.Handler) -> (),
 
 	use: (self: Router, func: handler.Middleware) -> (),
-	mount: (self: Router, router: Router, prefix: string) -> ()
+	mount: (self: Router, router: Router, prefix: string) -> (),
 }
 
 type Proto = {
 	node: Node.Node,
-	middleware: {handler.Middleware}
+	middleware: { handler.Middleware },
 }
 
 local Router: Impl = {} :: Impl
@@ -35,7 +35,7 @@ function Router.new()
 	self.node = Node.new({
 		children = {},
 		dynamic = false,
-		middleware = {}
+		middleware = {},
 	})
 	self.middleware = {}
 	return self

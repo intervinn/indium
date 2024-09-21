@@ -8,11 +8,11 @@ local process = require("@lune/process")
 local stdio = require("@lune/stdio")
 
 local Std = table.freeze({
-    net = net,
-    task = task,
-    fs = fs,
-    process = process,
-    stdio = stdio
+	net = net,
+	task = task,
+	fs = fs,
+	process = process,
+	stdio = stdio,
 })
 
 export type FetchParams = net.FetchParams

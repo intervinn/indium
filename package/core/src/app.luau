@@ -37,7 +37,7 @@ function App:listen(port: number, func: (() -> ())?)
 			res:text("route not found")
 			res:status(status.NOT_FOUND)
 		end
-		local middleware = {}
+		local middleware = self.router.middleware
 
 		local node, params = self.router.node:findDescendant(req.path, req.method)
 		if node and node.handler then
@@ -53,16 +53,18 @@ function App:listen(port: number, func: (() -> ())?)
 			path = req.path,
 			query = req.query,
 			headers = req.headers,
-			params = params
+			params = params,
 		})
 		local response = response.new()
 
-		local stack = table.clone(middleware) :: {any}
+		local stack = table.clone(middleware) :: { any }
 		table.insert(stack, handle)
 		local current = 1
 
 		local function nextFunction()
-			if current == #stack then return end
+			if current == #stack then
+				return
+			end
 			current += 1
 			stack[current](request, response, nextFunction)
 		end
@@ -77,7 +79,7 @@ function App:listen(port: number, func: (() -> ())?)
 			func()
 		end
 	end)
-	
+
 	-- now we serve
 	self.handle = std.net.serve(port, onRequest)
 end

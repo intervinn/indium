@@ -8,12 +8,12 @@ type Impl = {
 }
 
 type Proto = {
-	params: {[string]: string},
-	headers: {[string]: string},
+	params: { [string]: string },
+	headers: { [string]: string },
 	method: std.HttpMethod,
 	path: string,
-	query: {[string]: string?},
-	body: string
+	query: { [string]: string? },
+	body: string,
 }
 
 local Request: Impl = {} :: Impl
@@ -40,7 +40,7 @@ function Request:match(template: string)
 	end
 
 	for i = 1, #routePieces do
-		if templatePieces[i]:sub(1,1) == ":" then
+		if templatePieces[i]:sub(1, 1) == ":" then
 			self.params[templatePieces[i]:sub(2)] = routePieces[i]
 		end
 	end
