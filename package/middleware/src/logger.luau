@@ -16,7 +16,6 @@ function Logger.new(func)
 		next()
 		local time = datetime.now():formatLocalTime("%H-%M-%S")
 		local out: (string) -> () = func or stdio.write
-		print("WHAT")
 		out(`{time} > {req.method} {req.path} - {res.code}\n`)
 	end
 end
