@@ -19,7 +19,7 @@ local CORS: Impl = {} :: Impl
 CORS.__index = CORS
 export type CORS = typeof(setmetatable({}, {} :: Impl))
 
-function CORS.new(opts: CORSOptions): handler.Middleware
+function CORS.new(opts)
 	local defaults: CORSOptions = {
 		origin = "*",
 		allowMethods = { "GET", "HEAD", "PUT", "POST", "DELETE", "PATCH" },

@@ -1,13 +1,13 @@
 --!native
 local handler = require("@core/handler")
 local node = require("@core/node")
-local std = require("@util/std")
+local net = require("@lune/net")
 
 type Impl = {
 	__index: Impl,
 	new: () -> Router,
 
-	route: (self: Router, route: string, handler: handler.Handler, method: std.HttpMethod) -> (),
+	route: (self: Router, route: string, handler: handler.Handler, method: net.HttpMethod) -> (),
 
 	post: (self: Router, route: string, handler: handler.Handler) -> (),
 	get: (self: Router, route: string, handler: handler.Handler) -> (),
@@ -38,38 +38,26 @@ function Router.new()
 		middleware = {},
 	})
 	self.middleware = {}
+
+	local methods = {"GET", "POST", "PUT", "PATCH", "OPTIONS", "HEAD"}
+	for _,v in methods do
+		self[v:lower()] = function(self, route, handler)
+			self:route(route, handler, v)
+		end
+	end
+
 	return self
 end
 
-function Router:route(route: string, handler: handler.Handler, method: std.HttpMethod)
-	self.node:add(route, handler, method, self.middleware)
+function Router:route(route, handler, method)
+	self.node:add(route, handler, method :: net.HttpMethod, self.middleware)
 end
 
-function Router:get(route: string, handler: handler.Handler)
-	self:route(route, handler, "GET")
-end
-
-function Router:head(route: string, handler: handler.Handler)
-	self:route(route, handler, "HEAD")
-end
-
-function Router:options(route: string, handler: handler.Handler)
-	self:route(route, handler, "OPTIONS")
-end
-
-function Router:patch(route: string, handler: handler.Handler)
-	self:route(route, handler, "PATCH")
-end
-
-function Router:put(route: string, handler: handler.Handler)
-	self:route(route, handler, "PUT")
-end
-
-function Router:use(func: handler.Middleware)
+function Router:use(func)
 	table.insert(self.middleware, func)
 end
 
-function Router:mount(other: Router, prefix: string)
+function Router:mount(other, prefix)
 	other.node.route = prefix:gsub("%/", "")
 	table.insert(self.node.children, other.node)
 end

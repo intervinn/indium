@@ -1,24 +1,24 @@
 --!native
 local handler = require("@core/handler")
-local std = require("@util/std")
 local iter = require("@util/iter")
+local net = require("@lune/net")
 
 type Impl = {
 	__index: Impl,
 	new: (params: Proto) -> Node,
-	findDescendant: (self: Node, route: string, method: std.HttpMethod?) -> (Node?, { [string]: string }),
-	findChild: (self: Node, route: string, method: std.HttpMethod?) -> Node?,
+	findDescendant: (self: Node, route: string, method: net.HttpMethod?) -> (Node?, { [string]: string }),
+	findChild: (self: Node, route: string, method: net.HttpMethod?) -> Node?,
 	add: (
 		self: Node,
 		route: string,
 		handler: handler.Handler,
-		method: std.HttpMethod,
+		method: net.HttpMethod,
 		middleware: { handler.Middleware }
 	) -> (),
 }
 
 type Proto = {
-	method: std.HttpMethod?,
+	method: net.HttpMethod?,
 	handler: handler.Handler?,
 	route: string?,
 	children: { Node },
@@ -37,7 +37,7 @@ function Node.new(params: Proto)
 	return self
 end
 
-function Node:findChild(route: string, method: std.HttpMethod?): Node?
+function Node:findChild(route, method)
 	for _, v in self.children do
 		if method and v.method and method ~= v.method then
 			continue
@@ -69,13 +69,14 @@ function Node:findChild(route: string, method: std.HttpMethod?): Node?
 	return nil
 end
 
-function Node:findDescendant(route: string, method: std.HttpMethod?): (Node?, { [string]: string })
+function Node:findDescendant(route, method)
 	local parent: Node = self :: Node
 	local child: Node?
 	local params = {}
 
-	for str in route:gmatch("([^/]+)") do
-		child = parent:findChild(str, method)
+	for _,v in route:split("/") do
+		if #v == 0 then continue end
+		child = parent:findChild(v, method :: net.HttpMethod)
 
 		if child then
 			parent = child
@@ -85,43 +86,30 @@ function Node:findDescendant(route: string, method: std.HttpMethod?): (Node?, { 
 		end
 
 		if parent.dynamic and parent.route then
-			params[parent.route:sub(2)] = str
+			params[parent.route:sub(2)] = v
 		end
 	end
 
 	return parent, params
 end
 
-function Node:add(route: string, handler: handler.Handler, method: std.HttpMethod, middleware: { handler.Middleware })
+function Node:add(route, handler, method, middleware)
 	local scope = self
-	local pieces = iter.pack(route:gmatch("([^/]+)"))
+	local pieces = route:split("/")
+	local len = #pieces
 
 	if #pieces == 0 then
-		self.method = method
+		self.method = method :: net.HttpMethod
 		self.handler = handler
 		self.middleware = middleware
 		return
 	end
 
-	for i, v in pieces do
-		if not v then continue end
+	for i = 1, len-1 do
+		local v = pieces[i]
+		if v == "" then continue end
+
 		local isdynamic = v:sub(1, 1) == ":"
-
-		if i == #pieces then
-			table.insert(
-				scope.children,
-				Node.new({
-					route = v,
-					handler = handler,
-					middleware = middleware,
-					children = {},
-					dynamic = isdynamic,
-					method = method
-				})
-			)
-			return
-		end
-
 		local node = scope:findChild(v) :: any
 		if not node then
 			node = Node.new({
@@ -134,6 +122,17 @@ function Node:add(route: string, handler: handler.Handler, method: std.HttpMetho
 		end
 		scope = node
 	end
+	table.insert(
+		scope.children,
+		Node.new({
+			route = pieces[len],
+			handler = handler,
+			middleware = middleware,
+			children = {},
+			dynamic = pieces[len]:sub(1,1) == ":",
+			method = method :: net.HttpMethod
+		})
+	)
 end
 
 return Node

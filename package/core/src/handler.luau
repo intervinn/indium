@@ -6,4 +6,4 @@ export type NextFunction = () -> ()
 export type Handler = (req: request.Request, res: response.Response) -> ()
 export type Middleware = (req: request.Request, res: response.Response, NextFunction) -> ()
 
-return nil
+return {}

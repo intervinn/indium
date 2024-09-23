@@ -4,7 +4,8 @@ local response = require("@core/response")
 local request = require("@core/request")
 local handler = require("@core/handler")
 
-local std = require("@util/std")
+local net = require("@lune/net")
+local task = require("@lune/task")
 
 local status = require("@enum/status")
 
@@ -17,7 +18,7 @@ type Impl = {
 
 type Proto = {
 	router: router.Router,
-	handle: std.ServeHandle,
+	handle: net.ServeHandle,
 }
 
 local App: Impl = {} :: Impl
@@ -25,14 +26,14 @@ App.__index = App
 
 export type App = typeof(setmetatable({} :: Proto, {} :: Impl))
 
-function App.new(): App
+function App.new()
 	local self = setmetatable({} :: Proto, App)
 	self.router = router.new()
 	return self
 end
 
-function App:listen(port: number, func: (() -> ())?)
-	local function onRequest(req: std.ServeRequest)
+function App:listen(port, func)
+	local function onRequest(req: net.ServeRequest)
 		local handle: handler.Handler = function(req, res)
 			res:text("route not found")
 			res:status(status.NOT_FOUND)
@@ -74,14 +75,14 @@ function App:listen(port: number, func: (() -> ())?)
 	end
 
 	-- some things we might wanna do after the server starts up
-	std.task.defer(function()
+	task.defer(function()
 		if func then
 			func()
 		end
 	end)
 
 	-- now we serve
-	self.handle = std.net.serve(port, onRequest)
+	self.handle = net.serve(port, onRequest)
 end
 
 return App

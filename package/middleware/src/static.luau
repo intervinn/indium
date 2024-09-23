@@ -1,5 +1,5 @@
 local handler = require("@core/handler")
-local std = require("@util/std")
+local fs = require("@lune/fs")
 
 type Impl = {
 	__index: Impl,
@@ -13,7 +13,7 @@ export type Static = typeof(setmetatable({}, {} :: Impl))
 function Static.new(dir: string): handler.Middleware
 	return function(req, res, next)
 		next()
-		local ok, body = pcall(std.fs.readFile, dir .. req.path)
+		local ok, body = pcall(fs.readFile, dir .. req.path)
 		if not ok then
 			return
 		end
