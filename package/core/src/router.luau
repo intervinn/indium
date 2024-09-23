@@ -1,6 +1,6 @@
 --!native
 local handler = require("@core/handler")
-local Node = require("@core/node")
+local node = require("@core/node")
 local std = require("@util/std")
 
 type Impl = {
@@ -21,7 +21,7 @@ type Impl = {
 }
 
 type Proto = {
-	node: Node.Node,
+	node: node.Node,
 	middleware: { handler.Middleware },
 }
 
@@ -32,7 +32,7 @@ export type Router = typeof(setmetatable({} :: Proto, {} :: Impl))
 
 function Router.new()
 	local self = setmetatable({} :: Proto, Router)
-	self.node = Node.new({
+	self.node = node.new({
 		children = {},
 		dynamic = false,
 		middleware = {},
@@ -70,7 +70,7 @@ function Router:use(func: handler.Middleware)
 end
 
 function Router:mount(other: Router, prefix: string)
-	other.node.route = prefix
+	other.node.route = prefix:gsub("%/", "")
 	table.insert(self.node.children, other.node)
 end
 

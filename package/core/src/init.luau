@@ -4,8 +4,7 @@ local request = require("@core/request")
 local response = require("@core/response")
 local handler = require("@core/handler")
 
-local status = require("@enum/status")
-
+local enum = require("@enum/")
 local middleware = require("@middleware/")
 
 local Indium = {}
@@ -24,7 +23,7 @@ Indium.Request = request
 Indium.Response = response
 Indium.Handler = handler
 
-Indium.Status = status
+Indium.Enum = enum
 Indium.Middleware = middleware
 
 return Indium

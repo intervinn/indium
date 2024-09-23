@@ -1,6 +1,7 @@
 --!native
 local handler = require("@core/handler")
 local std = require("@util/std")
+local iter = require("@util/iter")
 
 type Impl = {
 	__index: Impl,
@@ -69,34 +70,31 @@ function Node:findChild(route: string, method: std.HttpMethod?): Node?
 end
 
 function Node:findDescendant(route: string, method: std.HttpMethod?): (Node?, { [string]: string })
-	local res: Node = self :: Node
-	local tmp: Node?
+	local parent: Node = self :: Node
+	local child: Node?
 	local params = {}
 
 	for str in route:gmatch("([^/]+)") do
-		tmp = res:findChild(str, method)
+		child = parent:findChild(str, method)
 
-		if tmp then
-			res = tmp
-			tmp = nil
+		if child then
+			parent = child
+			child = nil
 		else
 			return nil, {}
 		end
 
-		if res.dynamic and res.route then
-			params[res.route:sub(2)] = str
+		if parent.dynamic and parent.route then
+			params[parent.route:sub(2)] = str
 		end
 	end
 
-	return res, params
+	return parent, params
 end
 
 function Node:add(route: string, handler: handler.Handler, method: std.HttpMethod, middleware: { handler.Middleware })
-	local scope: Node = self
-	local pieces = {} :: { string }
-	for str in route:gmatch("([^/]+)") do
-		table.insert(pieces, str)
-	end
+	local scope = self
+	local pieces = iter.pack(route:gmatch("([^/]+)"))
 
 	if #pieces == 0 then
 		self.method = method
@@ -106,6 +104,9 @@ function Node:add(route: string, handler: handler.Handler, method: std.HttpMetho
 	end
 
 	for i, v in pieces do
+		if not v then continue end
+		local isdynamic = v:sub(1, 1) == ":"
+
 		if i == #pieces then
 			table.insert(
 				scope.children,
@@ -114,7 +115,8 @@ function Node:add(route: string, handler: handler.Handler, method: std.HttpMetho
 					handler = handler,
 					middleware = middleware,
 					children = {},
-					dynamic = (v:sub(1, 1) == ":"),
+					dynamic = isdynamic,
+					method = method
 				})
 			)
 			return
@@ -124,7 +126,7 @@ function Node:add(route: string, handler: handler.Handler, method: std.HttpMetho
 		if not node then
 			node = Node.new({
 				route = v,
-				dynamic = (v:sub(1, 1) == ":"),
+				dynamic = isdynamic,
 				children = {},
 				middleware = middleware,
 			})
