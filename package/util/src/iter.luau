@@ -1,6 +1,7 @@
 type Impl = {
 	__index: Impl,
 	pack: <T>(iter: () -> ...T) -> { T },
+	copy: (dest: any, src: any) -> ()
 }
 
 local Iter: Impl = {} :: Impl
@@ -12,6 +13,12 @@ function Iter.pack<T>(iter: () -> ...T): { T }
 		table.insert(res, i)
 	end
 	return res
+end
+
+function Iter.copy(dest, src)
+	for k,v in src do
+		dest[k] = v
+	end
 end
 
 return Iter
