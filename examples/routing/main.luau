@@ -8,7 +8,11 @@ users:get("/:username", function(req, res)
 end)
 
 local app = Indium.App.new()
+app.router:use(Indium.Middleware.Logger.new())
+
+
 app.router:mount(users, "/users")
+
 
 app.router:get("/", function(req, res)
     res:status(200):json({

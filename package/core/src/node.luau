@@ -74,8 +74,7 @@ function Node:findDescendant(route, method)
 	local child: Node?
 	local params = {}
 
-	for _,v in route:split("/") do
-		if #v == 0 then continue end
+	for v in route:gmatch("([^/]+)") do
 		child = parent:findChild(v, method :: net.HttpMethod)
 
 		if child then
@@ -107,7 +106,7 @@ function Node:add(route, handler, method, middleware)
 
 	for i = 1, len-1 do
 		local v = pieces[i]
-		if v == "" then continue end
+		if #v == 0 then continue end
 
 		local isdynamic = v:sub(1, 1) == ":"
 		local node = scope:findChild(v) :: any
