@@ -81,7 +81,6 @@ function App:listen(port, func)
 			func()
 		end
 	end)
-	print(string.char(27,91), "---")
 	print(("\x1b[35mThank you for using Indium!\nport: %d\x1b[0m"):format(port))
 	-- now we serve
 	self.handle = net.serve(port, onRequest)
