@@ -5,4 +5,4 @@
 
 [tools]
 lune = "lune-org/lune@0.8.8"
-pesde = "daimond113/pesde@0.4.7"
+pesde = "daimond113/pesde@0.5.0-rc.7 "

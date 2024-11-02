@@ -25,9 +25,9 @@ function CORS.new(opts)
 		allowMethods = { "GET", "HEAD", "PUT", "POST", "DELETE", "PATCH" },
 		allowHeaders = {},
 		exposeHeaders = {},
-	}
+	} :: {[string]: any}
 
-	for k, v in opts do
+	for k: string, v: any in opts do
 		defaults[k] = v
 	end
 
@@ -82,7 +82,7 @@ function CORS.new(opts)
 				res:set("Access-Control-Allow-Methods", table.concat(opts.allowMethods, ","))
 			end
 
-			local headers = opts.allowHeaders or {} -- lsp is so mean
+			local headers = opts.allowHeaders or {} :: {any}
 			if headers and #headers > 0 then
 				local reqHeaders = req:get("Access-Control-Request-Headers")
 

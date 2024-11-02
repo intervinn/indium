@@ -1,5 +1,5 @@
 {
-    "languageMode": "strict", 
+    "languageMode": "nonstrict", 
     "lint": {
         "*": false
     },

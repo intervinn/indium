@@ -43,7 +43,7 @@ function App:listen(port, func)
 
 		local node, params = self.router.node:findDescendant(req.path, req.method)
 		if node and node.handler then
-			handle = node.handler
+			handle = node.handler :: handler.Handler
 		end
 		if node and node.middleware then
 			middleware = node.middleware

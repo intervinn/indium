@@ -19,7 +19,7 @@ function Static.new(dir: string): handler.Middleware
 		end
 
 		res:set("Content-Type", "text/html")
-		res.body = body
+		res.body = body :: string
 	end
 end
 
