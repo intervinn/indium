@@ -6,6 +6,12 @@ Indium is a dead simple backend library inspired by [Express](https://github.com
 
 It aims to provide you with all the convenient tools to reduce pain while remaining lightweight.
 
+## Installation
+Either clone repository or use pesde:
+```
+pesde add intervinn/indium
+```
+
 ## Quick Example
 ```luau
 local Indium = require("Package")
